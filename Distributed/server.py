@@ -6,7 +6,7 @@ from player import PlayerVehicle , PlayerVehiclez
 import pickle
 import numpy as np
 
-server="192.168.1.102"
+server="localhost"
 port = 5550
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -19,9 +19,7 @@ except socket.error as e:
 s.listen(3)
 print("Waiting for a connection, Server Started")
 
-coordinates = [250,150,350]
-'''coordinates = [x1,x2,x3]'''
-score=[]
+score=[0,0,0]
 '''scores of players = [p1,p2,p3]'''
 
 def threaded_client(conn,player_id):

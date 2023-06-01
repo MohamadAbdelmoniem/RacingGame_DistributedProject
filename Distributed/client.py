@@ -5,9 +5,6 @@ from network import Network
 from player import PlayerVehicle , Vehicle
 
 pygame.init()
-print("here pygame")
-
-
 
 def main():
 
@@ -85,9 +82,11 @@ def main():
     player_group.add(player)
     clock = pygame.time.Clock()
     fps=60
-    player2_id = n.getPLayer_id()
+    n2=Network()
+    player2_id = n2.getPLayer_id()
     print("player 2 id: ", player2_id)
     player2= players[player2_id]
+    player_group.add(player2)
 
     while running:
         clock.tick(fps)
@@ -213,7 +212,7 @@ def main():
                         speed=2
                         player.resetScore()
                         vehicle_group.empty()
-                        player.rect.center=[players[player_id].x,400]
+                        player.rect.center=[250,400]
                     elif event.key == K_n:
                         game_over=False
                         running=False

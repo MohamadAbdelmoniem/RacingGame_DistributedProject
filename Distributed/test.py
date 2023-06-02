@@ -1,11 +1,5 @@
-''' 
-
-# Pickle the image data
-image_data = pygame.image.tostring(players[player_id].image, "RGBA")
-pickled_image = pickle.dumps(image_data)
-
-# Unpickle the image data
-unpickled_image = pickle.loads(pickled_image)
-restored_image = pygame.image.fromstring(unpickled_image, image.get_size(), "RGBA")
-    
-'''
+scores = {"player1": 0, "player2": 0}
+x=0
+print("player"+str(x+1))
+print(scores["player"+str(x+1)])
+print(1>1)

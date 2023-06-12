@@ -75,10 +75,7 @@ def main():
     # load crash image
     crash = pygame.image.load("images/crash.png")
     crash_rect = crash.get_rect()
-    running = False
-    while not running:
-        print("waiting for players...")
-        running = pickle.loads(client.recv(1024))
+    running = True
     
     player_id = pickle.loads(client.recv(1024))
 

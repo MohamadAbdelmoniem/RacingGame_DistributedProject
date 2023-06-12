@@ -30,17 +30,7 @@ def broadcast(scores):
 
 
 def threaded_client(conn, player_id):
-    global connectedPlayers
-    i=0
 
-    while connectedPlayers < 2:
-        
-        if i==0:
-            print("waiting for players...")
-        i+=1
-
-    conn.send(pickle.dumps(True)) # flag to run game
-    
     print("server will send id: ", player_id)
     conn.send(pickle.dumps(player_id))  # sending player id to connected  client
     print("server sent id: ", player_id)
@@ -71,7 +61,6 @@ def threaded_client(conn, player_id):
 
     print("Lost connection")
     conn.close()
-    connectedPlayers -= 1
     clients.remove(conn)
     print("newClientsAfterRemoval: ", clients)
 

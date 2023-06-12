@@ -5,20 +5,25 @@ import random
 from network import Network
 from player import PlayerVehicle, Vehicle
 import socket
+import sys
+from button import Button
 
 pygame.init()
+# create window
+width = 1280
+height = 720
+screen_size = (width, height)
+screen = pygame.display.set_mode(screen_size)
+pygame.display.set_caption("Asphalt 1")
+
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return pygame.font.Font("assets/font.ttf", size)
+BG = pygame.image.load("assets/Background.png")
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("localhost", 5550))
 
-def main():
-    # create window
-    width = 500
-    height = 500
-    screen_size = (width, height)
-    screen = pygame.display.set_mode(screen_size)
-    pygame.display.set_caption("Asphalt 1")
-
+def play():
     # colors
     gray = (100, 100, 100)
     green = (76, 208, 56)
@@ -29,7 +34,6 @@ def main():
     # game settings
     game_over = False
     speed = 2
-    # score=0
 
     # marker size
     marker_width = 10
@@ -231,5 +235,44 @@ def main():
 
     pygame.quit()
 
+def main_menu():
+    while True:
+        screen.blit(BG, (0, 0))
 
-main()
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        MENU_TEXT = get_font(100).render("MAIN MENU", True, "#b68f40")
+        MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
+
+        PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 250), 
+                            text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        OPTIONS_BUTTON = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(640, 400), 
+                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(640, 550), 
+                            text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+
+        screen.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    play()
+                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    options()
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
+def options():
+    pass
+
+main_menu()

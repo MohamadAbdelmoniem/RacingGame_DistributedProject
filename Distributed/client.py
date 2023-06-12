@@ -75,15 +75,11 @@ def main():
     # load crash image
     crash = pygame.image.load("images/crash.png")
     crash_rect = crash.get_rect()
-    running = True
-    """
-    making run false until receiving tru form server and server
-    only sends true if 2 clients are connected.
-    """
-    """n = Network()"""
-
+    running = False
+    while not running:
+        print("waiting for players...")
+        running = pickle.loads(client.recv(1024))
     
-
     player_id = pickle.loads(client.recv(1024))
 
     player = players[player_id]

@@ -19,7 +19,7 @@ except socket.error as e:
 server.listen(3)
 print("Waiting for a connection, Server Started")
 
-scores = {"player1 ": 0, "player2 ": 0}
+scores = {"player1": 0, "player2": 0}
 
 clients = []
 
@@ -30,45 +30,60 @@ def broadcast(scores):
 
 
 def threaded_client(conn, player_id):
+    global connectedPlayers
+    i=0
+
+    while connectedPlayers < 2:
+        
+        if i==0:
+            print("waiting for players...")
+        i+=1
+
+    conn.send(pickle.dumps(True)) # flag to run game
+    
     print("server will send id: ", player_id)
     conn.send(pickle.dumps(player_id))  # sending player id to connected  client
     print("server sent id: ", player_id)
     reply = ""
-
-    while player_id < 1:
-        pass
     while True:
         try:
             print("received data")
             data = pickle.loads(conn.recv(2048))  # receiving score
-            scores[
-                "player" + str(player_id + 1)
-            ] = data  # updating player score in server
+            if ("player" + str(player_id + 1)) in scores.keys():
+                scores[
+                    "player" + str(player_id + 1)
+                ] = data  # updating player score in server
 
             if not data:
                 print("no data")
                 print("Disconnected")
                 break
             else:
-                '''broadcast(scores)'''
+                """broadcast(scores)"""
                 conn.sendall(pickle.dumps(data))
 
                 print("Received: ", data)
                 print("Sending : ", scores)
 
-            '''conn.sendall(pickle.dumps(reply))'''  # sending updated score to desired client
+            # sending updated score to desired client
         except:
             break
 
     print("Lost connection")
     conn.close()
+    connectedPlayers -= 1
+    clients.remove(conn)
+    print("newClientsAfterRemoval: ", clients)
 
 
 currentPlayer = 0
+connectedPlayers = 0
 while True:
     conn, addr = server.accept()
     print("Connected to:", addr)
-    '''clients[currentPlayer] = conn'''
+    clients.append(conn)
+    print("newClientsAfterAppending: ", clients)
+    connectedPlayers += 1
     thread = threading.Thread(target=threaded_client, args=(conn, currentPlayer))
     thread.start()
     currentPlayer += 1

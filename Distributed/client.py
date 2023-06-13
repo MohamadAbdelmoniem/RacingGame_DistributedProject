@@ -97,10 +97,10 @@ def play():
                 pygame.quit()
 
         # moving player's car using left and right arrow keys
-        if event.type == KEYDOWN:
-            if event.key == K_LEFT and player.rect.center[0] > left_lane:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT and player.rect.center[0] > left_lane:
                 player.rect.x -= 10
-            elif event.key == K_RIGHT and player.rect.center[0] < right_lane:
+            elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
                 player.rect.x += 10
 
             # check if there is a side swipe collision after changing the lane
@@ -273,6 +273,29 @@ def main_menu():
         pygame.display.update()
 
 def options():
-    pass
+    while True:
+        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
+
+        screen.fill("white")
+
+        OPTIONS_TEXT = get_font(45).render("This is the OPTIONS screen.", True, "Black")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+
+        OPTIONS_BACK = Button(image=None, pos=(640, 460), 
+                            text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+
+        OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
+        OPTIONS_BACK.update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
+                    main_menu()
+
+        pygame.display.update()
 
 main_menu()

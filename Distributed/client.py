@@ -24,7 +24,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("localhost", 5550))
 
 def play():
-    
+    opponentScore = 0
     # colors
     gray = (100, 100, 100)
     green = (76, 208, 56)
@@ -36,20 +36,19 @@ def play():
     game_over = False
     speed = 2
 
-    shift_right = 80
     # marker size
     marker_width = 10
-    marker_height = 80
+    marker_height = 50
 
     # road and road egde markers rectangles
-    road = (100 + shift_right, 0, 300, height)  # road rectangle x,y,width,height
-    left_edge_marker = (95 + shift_right, 0, marker_width, height)
-    right_edge_marker = (395 + shift_right, 0, marker_width, height)
+    road = (100, 0, 300, height)  # road rectangle x,y,width,height
+    left_edge_marker = (95, 0, marker_width, height)
+    right_edge_marker = (395, 0, marker_width, height)
 
     # x coordinates of lanes
-    left_lane = 150 + shift_right
-    centre_lane = 250 + shift_right
-    right_lane = 350 + shift_right
+    left_lane = 150
+    centre_lane = 250
+    right_lane = 350
     lanes = [left_lane, centre_lane, right_lane]
 
     # animate movement of lane markers
@@ -58,18 +57,12 @@ def play():
     image = pygame.image.load("cars/pitstop_car_14.png")
     image1 = pygame.image.load("cars/pitstop_car_13.png")
     image2 = pygame.image.load("cars/pitstop_car_12.png")
-    image3 = pygame.image.load("cars/pitstop_car_20.png")
-    image3.set_alpha(128)
 
     players = [
-        PlayerVehicle(image, 250 + shift_right, 400),
-        PlayerVehicle(image1, 250 + shift_right, 400),
-        PlayerVehicle(image2, 250 + shift_right, 400),
+        PlayerVehicle(image, 250, 400),
+        PlayerVehicle(image1, 250, 400),
+        PlayerVehicle(image2, 250, 400),
     ]
-
-    opponent_player = PlayerVehicle(image3, 250 + shift_right, 400)
-    opponent_group = pygame.sprite.Group()
-    opponent_group.add(opponent_player)
 
     # create the player's car
     player_group = pygame.sprite.Group()
@@ -92,16 +85,10 @@ def play():
     player_id = pickle.loads(client.recv(1024))
 
     player = players[player_id]
-   
 
     player_group.add(player)
-   
     clock = pygame.time.Clock()
     fps = 60
-
-    player_score = 0
-    opponent_score = 0
-    opponent_position = (330,400)
 
     while running:
         clock.tick(fps)
@@ -193,41 +180,29 @@ def play():
 
                 # add to score
                 player.incrementScore()
-                #client.send(pickle.dumps(player.score))
-                client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
-                scores =list(pickle.loads(client.recv(1024)).values())
-                positions = list(pickle.loads(client.recv(1024)).values())
-                print(scores)
-                print(positions)
-                player.score = scores[player_id]
-                opponent_position = positions[1-player_id]
-                opponent_score = scores[1-player_id]
-                
+                client.send(pickle.dumps(player.score))
+
+                opponentScore = pickle.loads(client.recv(1024))
 
                 # speed up the game after passing 5 vehicles
                 if player.score > 0 and player.score % 5 == 0:
                     speed += 1
 
-        opponent_player.rect.x, opponent_player.rect.y = opponent_position
-
         # draw the vehicles
         vehicle_group.draw(screen)
 
-        opponent_group.draw(screen)
-
-
         # display the score
-        font = pygame.font.Font(pygame.font.get_default_font(), 16)
+        font = pygame.font.Font(pygame.font.get_default_font(), 14)
         text = font.render("score: " + str(player.score), True, white)
         text_rect = text.get_rect()
         text_rect.center = (50, 450)
         screen.blit(text, text_rect)
 
-        # display the opponent's score
-        opponent_text = font.render("opponent score: " + str(opponent_score), True, white)
-        opponent_text_rect = opponent_text.get_rect()
-        opponent_text_rect.center = (80, 470)
-        screen.blit(opponent_text, opponent_text_rect)
+        # display opponent score
+        text1 = font.render("opponent: " + str(opponentScore), True, white)
+        text_rect1 = text1.get_rect()
+        text_rect1.center = (50, 470)
+        screen.blit(text1, text_rect1)
 
         # check if there is a head on collision
         if pygame.sprite.spritecollide(player, vehicle_group, True):
@@ -259,12 +234,9 @@ def play():
                         game_over = False
                         speed = 2
                         player.resetScore()
-                        player_score = 0
                         vehicle_group.empty()
                         player.rect.center = [250, 400]
                     elif event.key == K_n:
-                        player.resetScore()
-                        player_score = 0
                         game_over = False
                         running = False
                         pygame.quit()

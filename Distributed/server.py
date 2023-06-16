@@ -1,6 +1,10 @@
 import socket
 import threading
+import random
+import pygame
+from player import PlayerVehicle, PlayerVehiclez
 import pickle
+import numpy as np
 
 SERVER_IP = "localhost"
 SERVER_PORT = 5550
@@ -16,37 +20,46 @@ server.listen(3)
 print("Waiting for a connection, Server Started")
 
 scores = {"player1": 0, "player2": 0}
-positions = {"player1": (330,400), "player2": (330,400)}
+
 clients = []
+
 
 def broadcast(scores):
     for client in clients:
-        client.sendall(pickle.dumps(scores))
+        conn.send_json(scores)
+
 
 def threaded_client(conn, player_id):
-    print("server will send id: ", player_id)
-    conn.send(pickle.dumps(player_id))
-    print("server sent id: ", player_id)
 
+    print("server will send id: ", player_id)
+    conn.send(pickle.dumps(player_id))  # sending player id to connected  client
+    print("server sent id: ", player_id)
+    reply = ""
     while True:
         try:
             print("received data")
-            data = pickle.loads(conn.recv(2048))
+            data = pickle.loads(conn.recv(2048))  # receiving score
+            if ("player" + str(player_id + 1)) in scores.keys():
+                scores[
+                    "player" + str(player_id + 1)
+                ] = data  # updating player score in server
 
             if not data:
                 print("no data")
                 print("Disconnected")
                 break
             else:
-                player_key = "player" + str(player_id + 1)
-                opponent_key = "player" + str((player_id + 1) % 2 + 1)
-                scores[player_key], positions[player_key] = data
-                conn.sendall(pickle.dumps(scores))
-                conn.sendall(pickle.dumps(positions))
+                """broadcast(scores)"""
+                '''conn.sendall(pickle.dumps(data))'''
+                if player_id == 0:
+                    conn.sendall(pickle.dumps(scores["player2"]))
+                else:
+                    conn.sendall(pickle.dumps(scores["player1"]))
 
                 print("Received: ", data)
                 print("Sending : ", scores)
 
+            # sending updated score to desired client
         except:
             break
 
@@ -54,6 +67,7 @@ def threaded_client(conn, player_id):
     conn.close()
     clients.remove(conn)
     print("newClientsAfterRemoval: ", clients)
+
 
 currentPlayer = 0
 connectedPlayers = 0

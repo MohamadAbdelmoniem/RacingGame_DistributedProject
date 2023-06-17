@@ -95,6 +95,7 @@ def play():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                client.close()
                 pygame.quit()
 
         # moving player's car using left and right arrow keys
@@ -181,12 +182,15 @@ def play():
                 # add to score
                 player.incrementScore()
                 client.send(pickle.dumps(player.score))
+                client.send(pickle.dumps(speed))
 
                 opponentScore = pickle.loads(client.recv(1024))
 
                 # speed up the game after passing 5 vehicles
                 if player.score > 0 and player.score % 5 == 0:
                     speed += 1
+                
+
 
         # draw the vehicles
         vehicle_group.draw(screen)
@@ -227,6 +231,7 @@ def play():
                 if event.type == QUIT:
                     game_over = False
                     running = False
+                    client.close()
                 # get the players input
                 if event.type == KEYDOWN:
                     if event.key == K_y:
@@ -239,8 +244,9 @@ def play():
                     elif event.key == K_n:
                         game_over = False
                         running = False
+                        client.close()
                         pygame.quit()
-
+                        
     pygame.quit()
 
 def main_menu():
@@ -272,6 +278,7 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     play()
+                    options()
                 if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
                     options()
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):

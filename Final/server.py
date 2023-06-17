@@ -84,6 +84,7 @@ def threaded_client(conn, player_id):
     print("server sent id: ", player_id)
 
     init_dicts("player" + str(player_id + 1))
+    conn.send(pickle.dumps()) #sending dict
 
     while True:
         try:

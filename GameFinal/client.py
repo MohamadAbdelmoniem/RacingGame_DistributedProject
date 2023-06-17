@@ -36,6 +36,7 @@ def play():
     # game settings
     game_over = False
     speed = 2
+    max_speed = 5
 
     current_frame = 0
 
@@ -92,7 +93,7 @@ def play():
     crash_rect = crash.get_rect()
     running = True
     
-    player_id = pickle.loads(client.recv(1024))
+    player_id = pickle.loads(client.recv(2048))
 
     player = players[player_id]
    
@@ -119,17 +120,17 @@ def play():
         # moving player's car using left and right arrow keys
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and player.rect.center[0] > left_lane:
-                    player.rect.x -= 10
-                    client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
-                    data = pickle.loads(client.recv(1024))
+                    player.rect.x -= 20
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position
 
 
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
-                    player.rect.x += 10
-                    client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
-                    data = pickle.loads(client.recv(1024))
+                    player.rect.x += 20
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position
   
@@ -213,10 +214,10 @@ def play():
                 vehicle.kill()
                 player.incrementScore()
                 #client.send(pickle.dumps(player.score))
-                client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
+                client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
                 #scores =list(pickle.loads(client.recv(1024)).values())
                 #positions = list(pickle.loads(client.recv(1024)).values())
-                data = pickle.loads(client.recv(1024))
+                data = pickle.loads(client.recv(2048))
                 #print(scores)
                 #print(positions)
                 print(data)
@@ -230,6 +231,8 @@ def play():
                 # speed up the game after passing 5 vehicles
                 if player.score > 0 and player.score % 5 == 0:
                     speed += 1
+                if speed>max_speed:
+                    speed = max_speed
 
         opponent_player.rect.x, opponent_player.rect.y = opponent_player_pos
 

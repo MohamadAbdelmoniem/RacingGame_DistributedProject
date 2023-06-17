@@ -3,8 +3,9 @@ import threading
 import pickle
 from pymongo.mongo_client import MongoClient
 
+
 SERVER_IP = "localhost"
-SERVER_PORT = 5550
+SERVER_PORT = 5552
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

@@ -21,7 +21,7 @@ def get_font(size): # Returns Press-Start-2P in the desired size
 BG = pygame.image.load("assets/Background.png")
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("localhost", 5550))
+client.connect(("localhost", 5552))
 
 
 def play():
@@ -35,9 +35,8 @@ def play():
 
     # game settings
     game_over = False
-    speed = 2
     max_speed = 5
-    quit_flag = 0
+    
 
     current_frame = 0
 
@@ -110,10 +109,11 @@ def play():
     speed = data1["speeds"][player_id]
     player_pos = data1["positions"][player_id]
     player.rect.x, player.rect.y = player_pos
+    quit_flag = data1["quits"][player_id]
 
 
 
-    player_score = 0
+    
     opponent_score = 0
     opponent_position = (330,400)
 

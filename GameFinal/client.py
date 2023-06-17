@@ -120,7 +120,7 @@ def play():
         # moving player's car using left and right arrow keys
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and player.rect.center[0] > left_lane:
-                    player.rect.x -= 20
+                    player.rect.x -= 10
                     client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
@@ -128,7 +128,7 @@ def play():
 
 
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
-                    player.rect.x += 20
+                    player.rect.x += 10
                     client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]

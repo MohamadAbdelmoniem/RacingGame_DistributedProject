@@ -17,7 +17,7 @@ print("Waiting for a connection, Server Started")
 
 scores = {"player1": 0, "player2": 0}
 positions = {"player1": (330,400), "player2": (330,400)}
-speeds = {"player1":0,"player":0}
+speeds = {"player1":0,"player2":0}
 clients = []
 dict = {}
 

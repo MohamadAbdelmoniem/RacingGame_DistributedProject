@@ -104,6 +104,15 @@ def play():
     clock = pygame.time.Clock()
     fps = 60
 
+    data1 = pickle.loads(client.recv(2048))
+    print(data1)
+    player.score = data1["scores"][player_id]
+    speed = data1["speeds"][player_id]
+    player_pos = data1["positions"][player_id]
+    player.rect.x, player.rect.y = player_pos
+
+
+
     player_score = 0
     opponent_score = 0
     opponent_position = (330,400)
@@ -132,8 +141,8 @@ def play():
 
 
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
-                    player.rect.x += 20
-                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    player.rect.x += 10
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position

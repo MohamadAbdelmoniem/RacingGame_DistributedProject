@@ -18,6 +18,7 @@ print("Waiting for a connection, Server Started")
 scores = {"player1": 0, "player2": 0}
 positions = {"player1": (330,400), "player2": (330,400)}
 clients = []
+dict = {}
 
 def broadcast(scores):
     for client in clients:
@@ -41,11 +42,20 @@ def threaded_client(conn, player_id):
                 player_key = "player" + str(player_id + 1)
                 opponent_key = "player" + str((player_id + 1) % 2 + 1)
                 scores[player_key], positions[player_key] = data
-                conn.sendall(pickle.dumps(scores))
-                conn.sendall(pickle.dumps(positions))
+                print("scores: ", scores)
+                print("positions: ", positions)
+                dict ={
+                    "scores": list(scores.values()),
+                    "positions": list(positions.values()),
+                }
+                print(dict)
+                broadcast(dict)
+
+                #conn.sendall(pickle.dumps(scores,positions))
+                #conn.sendall(pickle.dumps(positions))
 
                 print("Received: ", data)
-                print("Sending : ", scores)
+                print("Sending : ", dict)
 
         except:
             break

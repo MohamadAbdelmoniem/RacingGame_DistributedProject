@@ -23,6 +23,7 @@ BG = pygame.image.load("assets/Background.png")
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("localhost", 5550))
 
+
 def play():
     
     # colors
@@ -35,6 +36,8 @@ def play():
     # game settings
     game_over = False
     speed = 2
+
+    current_frame = 0
 
     shift_right = 80
     # marker size
@@ -103,9 +106,12 @@ def play():
     opponent_score = 0
     opponent_position = (330,400)
 
+    opponent_player_pos = (opponent_player.rect.x, opponent_player.rect.y)
+
     while running:
         clock.tick(fps)
         for event in pygame.event.get():
+            pygame.display.update()
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
@@ -114,8 +120,21 @@ def play():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and player.rect.center[0] > left_lane:
                     player.rect.x -= 10
+                    client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
+                    data = pickle.loads(client.recv(1024))
+                    #opponent_position = data["positions"][1-player_id]
+                    #opponent_player.rect.x, opponent_player.rect.y = opponent_position
+
+
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
                     player.rect.x += 10
+                    client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
+                    data = pickle.loads(client.recv(1024))
+                    #opponent_position = data["positions"][1-player_id]
+                    #opponent_player.rect.x, opponent_player.rect.y = opponent_position
+  
+                #opponent_player.rect.x, opponent_player.rect.y = opponent_position
+              
 
                 # check if there is a side swipe collision after changing the lane
                 for vehicle in vehicle_group:
@@ -163,6 +182,8 @@ def play():
                 (centre_lane + 45, y + lane_marker_move_y, marker_width, marker_height),
             )
 
+            
+
         # draw the player's car
         player_group.draw(screen)
 
@@ -190,25 +211,27 @@ def play():
             # remove the vehicle once it goes off screen
             if vehicle.rect.top >= height:
                 vehicle.kill()
-
-                # add to score
                 player.incrementScore()
                 #client.send(pickle.dumps(player.score))
                 client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
-                scores =list(pickle.loads(client.recv(1024)).values())
-                positions = list(pickle.loads(client.recv(1024)).values())
-                print(scores)
-                print(positions)
-                player.score = scores[player_id]
-                opponent_position = positions[1-player_id]
-                opponent_score = scores[1-player_id]
+                #scores =list(pickle.loads(client.recv(1024)).values())
+                #positions = list(pickle.loads(client.recv(1024)).values())
+                data = pickle.loads(client.recv(1024))
+                #print(scores)
+                #print(positions)
+                print(data)
+                player.score = data["scores"][player_id]
+                opponent_position = data["positions"][1-player_id]
+                opponent_score = data["scores"][1-player_id]
+                opponent_player_pos = opponent_position
+                    
                 
 
                 # speed up the game after passing 5 vehicles
                 if player.score > 0 and player.score % 5 == 0:
                     speed += 1
 
-        opponent_player.rect.x, opponent_player.rect.y = opponent_position
+        opponent_player.rect.x, opponent_player.rect.y = opponent_player_pos
 
         # draw the vehicles
         vehicle_group.draw(screen)
@@ -243,6 +266,8 @@ def play():
             text_rect = text.get_rect()
             text_rect.center = (width / 2, 100)
             screen.blit(text, text_rect)
+    
+
         pygame.display.update()
 
         # check if player wants to play again
@@ -259,12 +284,11 @@ def play():
                         game_over = False
                         speed = 2
                         player.resetScore()
-                        player_score = 0
+
                         vehicle_group.empty()
                         player.rect.center = [250, 400]
                     elif event.key == K_n:
                         player.resetScore()
-                        player_score = 0
                         game_over = False
                         running = False
                         pygame.quit()
@@ -283,7 +307,7 @@ def main_menu():
         PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 250), 
                             text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         OPTIONS_BUTTON = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(640, 400), 
-                            text_input="Chat Room", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(640, 550), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 

@@ -7,7 +7,7 @@ from player import PlayerVehicle, Vehicle
 import socket
 import sys
 from button import Button
-
+import threading
 pygame.init()
 # create window
 width = 1280
@@ -20,12 +20,12 @@ def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/font.ttf", size)
 BG = pygame.image.load("assets/Background.png")
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("localhost", 5550))
+
 
 
 def play():
-    
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(("localhost", 5552))
     # colors
     gray = (100, 100, 100)
     green = (76, 208, 56)
@@ -35,9 +35,8 @@ def play():
 
     # game settings
     game_over = False
-    speed = 2
     max_speed = 5
-    quit_flag = 0
+    
 
     current_frame = 0
 
@@ -104,7 +103,17 @@ def play():
     clock = pygame.time.Clock()
     fps = 60
 
-    player_score = 0
+    data1 = pickle.loads(client.recv(2048))
+    print(data1)
+    player.score = data1["scores"][player_id]
+    speed = data1["speeds"][player_id]
+    player_pos = data1["positions"][player_id]
+    player.rect.x, player.rect.y = player_pos
+    quit_flag = data1["quits"][player_id]
+
+
+
+    
     opponent_score = 0
     opponent_position = (330,400)
 
@@ -132,8 +141,8 @@ def play():
 
 
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
-                    player.rect.x += 20
-                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    player.rect.x += 10
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position
@@ -346,7 +355,78 @@ def main_menu():
 
         pygame.display.update()
 
+def create_Chat():
+    def receive():
+        while True:
+            try:
+                message = client1.recv(1024).decode('utf-8')
+                if message == 'NICK':
+                    client1.send(nickname.encode('utf-8'))
+                else:
+                    text_box.config(state=NORMAL)
+                    text_box.insert(END, message + "\n")
+                    text_box.config(state=DISABLED)
+            except:
+                print("Error")
+                client1.close()
+                break
+
+    def send(event=None):
+        message = f'{nickname}: {input_msg.get()}'
+        client1.send(message.encode('utf-8'))
+        input_msg.set('')
+
+    def on_closing(event=None):
+        input_msg.set('!quit')
+        send()
+        window.quit()
+
+    PRIMARY_SERVER_IP = '127.0.0.1'
+    PRIMARY_SERVER_PORT = 5553
+
+
+    client1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    
+    client1.connect((PRIMARY_SERVER_IP, PRIMARY_SERVER_PORT))
+    
+    from tkinter import Frame, Scrollbar, Label, END, Entry, Text, VERTICAL, Button, Tk, StringVar, DISABLED, NORMAL, RIGHT, LEFT, Y, W, E, S, N, BOTH
+
+    window = Tk()
+    window.title("Chat Client")
+
+    frame = Frame(window)
+    scrollbar = Scrollbar(frame)
+    text_box = Text(frame, height=15, width=50, yscrollcommand=scrollbar.set, state=DISABLED)
+    scrollbar.pack(side=RIGHT, fill=Y)
+    text_box.pack(side=LEFT, fill=BOTH)
+    frame.pack()
+
+    input_msg = StringVar()
+    input_msg.set('')
+    input_field = Entry(window, text=input_msg, width=50)
+    input_field.bind('<Return>', send)
+    input_field.pack()
+
+    send_button = Button(window, text='Send', command=send)
+    send_button.pack()
+
+    window.protocol("WM_DELETE_WINDOW", on_closing)
+
+    nickname = input("Enter your nickname: ")
+
+    receive_thread = threading.Thread(target=receive)
+    receive_thread.start()
+
+    window.mainloop()
+
 def options():
+    game_thread = threading.Thread(target=run_game_loop)
+    game_thread.start()
+    
+    create_Chat()
+
+def run_game_loop():
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
@@ -356,7 +436,7 @@ def options():
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-        OPTIONS_BACK = Button(image=None, pos=(640, 460), 
+        OPTIONS_BACK = Button(image=None, pos=(640, 460),
                             text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
 
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)

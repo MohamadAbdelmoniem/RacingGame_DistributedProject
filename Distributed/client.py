@@ -213,7 +213,7 @@ def play():
                 vehicle.kill()
                 player.incrementScore()
                 #client.send(pickle.dumps(player.score))
-                client.send(pickle.dumps((player.score, (player.rect.x, player.rect.y))))
+                client.send(pickle.dumps((player.score,speed ,(player.rect.x, player.rect.y))))
                 #scores =list(pickle.loads(client.recv(1024)).values())
                 #positions = list(pickle.loads(client.recv(1024)).values())
                 data = pickle.loads(client.recv(1024))

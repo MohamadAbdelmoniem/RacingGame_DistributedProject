@@ -72,7 +72,7 @@ def read_position(player_key):
 def init_dicts(player_key):
     scores[player_key] = read_score(player_key)
     speeds[player_key] = read_speed(player_key)
-    positions[player_key] = read_position(player_key)
+    positions[player_key] = tuple(read_position(player_key))
 
 def broadcast(scores):
     for client in clients:
@@ -82,9 +82,16 @@ def threaded_client(conn, player_id):
     print("server will send id: ", player_id)
     conn.send(pickle.dumps(player_id))
     print("server sent id: ", player_id)
-
     init_dicts("player" + str(player_id + 1))
-    conn.send(pickle.dumps()) #sending dict
+    dict1 = {
+        "scores": list(scores.values()),
+        "speeds": list(speeds.values()),
+        "positions": list(positions.values()),
+        "quits" : list(quits.values())
+    }
+    print("dict1",dict1)
+    
+    conn.send(pickle.dumps(dict1)) #sending dict
 
     while True:
         try:

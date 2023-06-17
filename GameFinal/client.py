@@ -37,6 +37,7 @@ def play():
     game_over = False
     speed = 2
     max_speed = 5
+    quit_flag = 0
 
     current_frame = 0
 
@@ -115,13 +116,16 @@ def play():
             pygame.display.update()
             if event.type == pygame.QUIT:
                 running = False
+                quit_flag = 1
+                client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
+                data = pickle.loads(client.recv(2048))
                 pygame.quit()
 
         # moving player's car using left and right arrow keys
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and player.rect.center[0] > left_lane:
                     player.rect.x -= 20
-                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position
@@ -129,7 +133,7 @@ def play():
 
                 elif event.key == pygame.K_RIGHT and player.rect.center[0] < right_lane:
                     player.rect.x += 20
-                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
                     data = pickle.loads(client.recv(2048))
                     #opponent_position = data["positions"][1-player_id]
                     #opponent_player.rect.x, opponent_player.rect.y = opponent_position
@@ -214,7 +218,7 @@ def play():
                 vehicle.kill()
                 player.incrementScore()
                 #client.send(pickle.dumps(player.score))
-                client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y))))
+                client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
                 #scores =list(pickle.loads(client.recv(1024)).values())
                 #positions = list(pickle.loads(client.recv(1024)).values())
                 data = pickle.loads(client.recv(2048))
@@ -280,6 +284,10 @@ def play():
                 if event.type == QUIT:
                     game_over = False
                     running = False
+                    quit_flag = 1
+                    client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
+                    data = pickle.loads(client.recv(2048))
+                    pygame.quit()
                 # get the players input
                 if event.type == KEYDOWN:
                     if event.key == K_y:
@@ -294,6 +302,9 @@ def play():
                         player.resetScore()
                         game_over = False
                         running = False
+                        quit_flag = 1
+                        client.send(pickle.dumps((player.score,speed, (player.rect.x, player.rect.y), quit_flag)))
+                        data = pickle.loads(client.recv(2048))
                         pygame.quit()
 
     pygame.quit()

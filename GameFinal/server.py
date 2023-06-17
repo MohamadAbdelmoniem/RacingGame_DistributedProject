@@ -18,6 +18,7 @@ print("Waiting for a connection, Server Started")
 scores = {"player1": 0, "player2": 0}
 positions = {"player1": (330,400), "player2": (330,400)}
 speeds = {"player1":0,"player":0}
+quits = {"player1":0,"player":0}
 clients = []
 dict = {}
 
@@ -42,13 +43,14 @@ def threaded_client(conn, player_id):
             else:
                 player_key = "player" + str(player_id + 1)
                 opponent_key = "player" + str((player_id + 1) % 2 + 1)
-                scores[player_key], speeds[player_key],positions[player_key] = data
+                scores[player_key], speeds[player_key],positions[player_key],quits[player_key] = data
                 print("scores: ", scores)
                 print("positions: ", positions)
                 dict ={
                     "scores": list(scores.values()),
                     "speeds": list(speeds.values()),
                     "positions": list(positions.values()),
+                    "quits" : list(quits.values())
                 }
                 print(dict)
                 broadcast(dict)

@@ -104,7 +104,6 @@ def play():
     fps = 60
 
     data1 = pickle.loads(client.recv(2048))
-    print(data1)
     player.score = data1["scores"][player_id]
     speed = data1["speeds"][player_id]
     player_pos = data1["positions"][player_id]

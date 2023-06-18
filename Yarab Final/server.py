@@ -19,7 +19,7 @@ except socket.error as e:
 
 server.listen(3)
 server1.listen()
-print("Waiting for a connection, Server Started")
+
 
 scores = {"player1": 0, "player2": 0}
 positions = {"player1": (330,400), "player2": (330,400)}
@@ -114,17 +114,16 @@ def threaded_client(conn, player_id):
         "positions": list(positions.values()),
         "quits" : list(quits.values())
     }
-    print("dict1",dict1)
+    
     
     conn.send(pickle.dumps(dict1)) #sending dict
 
     while True:
         try:
-            print("received data")
+            
             data = pickle.loads(conn.recv(2048))
 
             if not data:
-                print("no data")
                 print("Disconnected")
                 break
             else:
@@ -133,7 +132,7 @@ def threaded_client(conn, player_id):
                 scores[player_key], speeds[player_key],positions[player_key],quits[player_key] = data
                 if quits[player_key]==1:
                     reset_doc(player_key)
-                    print("reset")
+                
 
                 update_doc(player_key,scores[player_key],speeds[player_key],positions[player_key])
                 print("scores: ", scores)
@@ -144,25 +143,23 @@ def threaded_client(conn, player_id):
                     "positions": list(positions.values()),
                     "quits" : list(quits.values())
                 }
-                print(dict)
                 broadcast(dict)
 
                 #conn.sendall(pickle.dumps(scores,positions))
                 #conn.sendall(pickle.dumps(positions))
 
-                print("Received: ", data)
-                print("Sending : ", dict)
+
 
         except:
             break
     if quits[player_key]==1:
         reset_doc(player_key)
-        print("reset")    
+    
 
-    print("Lost connection")
+    
     conn.close()
     clients.remove(conn)
-    print("newClientsAfterRemoval: ", clients)
+    
 
 currentPlayer = 0
 connectedPlayers = 0
@@ -171,9 +168,7 @@ def game_server():
     global connectedPlayers
     while True:
         conn, addr = server.accept()
-        print("Connected to:", addr)
         clients.append(conn)
-        print("newClientsAfterAppending: ", clients)
         connectedPlayers += 1
         thread = threading.Thread(target=threaded_client, args=(conn, currentPlayer))
         thread.start()
@@ -183,14 +178,12 @@ def game_server():
 def chat_server():
     while True:
         client, address = server1.accept()
-        print(f'Connected with {str(address)}')
 
         client.send('NICK'.encode('utf-8'))
         nickname = client.recv(1024).decode('utf-8')
         nicknames.append(nickname)
         clients1.append(client)
 
-        print(f'Nickname of the client is {nickname}!')
         broadcast1(f'{nickname} joined the chat!'.encode('utf-8'))
         client.send('Connected to the server!'.encode('utf-8'))
         thread1 = threading.Thread(target=handle, args=(client,))

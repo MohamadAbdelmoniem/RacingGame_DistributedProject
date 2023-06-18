@@ -230,9 +230,6 @@ def play():
                 #scores =list(pickle.loads(client.recv(1024)).values())
                 #positions = list(pickle.loads(client.recv(1024)).values())
                 data = pickle.loads(client.recv(2048))
-                #print(scores)
-                #print(positions)
-                print(data)
                 player.score = data["scores"][player_id]
                 opponent_position = data["positions"][1-player_id]
                 opponent_score = data["scores"][1-player_id]
@@ -277,7 +274,7 @@ def play():
             screen.blit(crash, crash_rect)
             pygame.draw.rect(screen, red, (0, 50, width, 100))
             font = pygame.font.Font(pygame.font.get_default_font(), 16)
-            text = font.render("game over. Play again? enter y or n", True, white)
+            text = font.render("Game over. Play again? Press 'y' to restart or 'n' for quit", True, white)
             text_rect = text.get_rect()
             text_rect.center = (width / 2, 100)
             screen.blit(text, text_rect)
@@ -366,7 +363,6 @@ def create_Chat():
                     text_box.insert(END, message + "\n")
                     text_box.config(state=DISABLED)
             except:
-                print("Error")
                 client1.close()
                 break
 
@@ -431,7 +427,7 @@ def run_game_loop():
 
         screen.fill("white")
 
-        OPTIONS_TEXT = get_font(45).render("This is the OPTIONS screen.", True, "Black")
+        OPTIONS_TEXT = get_font(45).render("This is the CHATROOM screen.", True, "Black")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
 

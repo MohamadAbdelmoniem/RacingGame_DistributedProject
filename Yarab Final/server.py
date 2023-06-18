@@ -19,7 +19,7 @@ except socket.error as e:
 
 server.listen(3)
 server1.listen()
-
+print("Waiting for a connection, Server Started")
 
 scores = {"player1": 0, "player2": 0}
 positions = {"player1": (330,400), "player2": (330,400)}
@@ -104,9 +104,7 @@ def handle(client):
             break
 
 def threaded_client(conn, player_id):
-    print("server will send id: ", player_id)
     conn.send(pickle.dumps(player_id))
-    print("server sent id: ", player_id)
     init_dicts("player" + str(player_id + 1))
     dict1 = {
         "scores": list(scores.values()),
@@ -135,8 +133,6 @@ def threaded_client(conn, player_id):
                 
 
                 update_doc(player_key,scores[player_key],speeds[player_key],positions[player_key])
-                print("scores: ", scores)
-                print("positions: ", positions)
                 dict ={
                     "scores": list(scores.values()),
                     "speeds": list(speeds.values()),

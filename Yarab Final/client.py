@@ -25,7 +25,7 @@ BG = pygame.image.load("assets/Background.png")
 
 def play():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(("16.16.28.148", 5552))
+    client.connect(("13.49.46.45", 5552))
     # colors
     gray = (100, 100, 100)
     green = (76, 208, 56)
@@ -376,7 +376,7 @@ def create_Chat():
         send()
         window.quit()
 
-    PRIMARY_SERVER_IP = '16.16.28.148'
+    PRIMARY_SERVER_IP = '13.49.46.45'
     PRIMARY_SERVER_PORT = 5553
 
 
